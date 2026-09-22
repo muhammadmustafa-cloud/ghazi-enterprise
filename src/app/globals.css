@@ -1,0 +1,129 @@
+@import "tailwindcss";
+
+@theme {
+  --color-void: #070707;
+  --color-void-soft: #141414;
+  --color-void-card: #1c1c1c;
+  --color-blaze: #ff4d00;
+  --color-blaze-hover: #e04400;
+  --color-gold: #ffc107;
+  --color-mint: #00e5a0;
+  --color-snow: #fafafa;
+  --color-smoke: #8a8a8a;
+  --color-smoke-light: #b3b3b3;
+  --color-line: #2a2a2a;
+  --color-line-light: #e8e8e8;
+  --color-success: #00c853;
+
+  --font-sans: 'DM Sans', system-ui, sans-serif;
+  --font-display: 'Syne', system-ui, sans-serif;
+}
+
+@layer base {
+  html { scroll-behavior: smooth; }
+
+  body {
+    @apply bg-snow text-void font-sans antialiased overflow-x-hidden;
+  }
+
+  h1, h2, h3, h4 { @apply font-display tracking-tight; }
+
+  ::selection {
+    background: color-mix(in srgb, var(--color-blaze) 40%, black);
+    color: white;
+  }
+}
+
+@layer components {
+  .container-main {
+    @apply mx-auto max-w-[1320px] px-5 sm:px-8 lg:px-10;
+  }
+
+  .tag {
+    @apply inline-flex items-center gap-2 rounded-full border border-white/20 bg-white/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-white backdrop-blur-sm;
+  }
+
+  .tag-dark {
+    @apply inline-flex items-center gap-2 rounded-full border border-void/10 bg-blaze/10 px-4 py-1.5 text-[11px] font-bold uppercase tracking-[0.2em] text-blaze;
+  }
+
+  .headline-xl {
+    @apply font-display text-[clamp(2.75rem,8vw,5.5rem)] font-extrabold uppercase leading-[0.92] tracking-tight;
+  }
+
+  .headline-lg {
+    @apply font-display text-[clamp(2rem,5vw,3.5rem)] font-bold leading-[1.05];
+  }
+
+  .btn-blaze {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-blaze px-8 py-4 text-sm font-bold uppercase tracking-wider text-white shadow-[0_0_40px_rgba(255,77,0,0.45)] transition-all duration-300 hover:scale-[1.03] hover:bg-blaze-hover hover:shadow-[0_0_60px_rgba(255,77,0,0.6)];
+  }
+
+  .btn-ghost {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-white/30 px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 hover:border-white hover:bg-white/10;
+  }
+
+  .btn-dark {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-void px-8 py-4 text-sm font-bold uppercase tracking-wider text-white transition-all duration-300 hover:bg-void-soft;
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border-2 border-void/15 px-8 py-4 text-sm font-bold uppercase tracking-wider text-void transition-all duration-300 hover:border-blaze hover:text-blaze;
+  }
+
+  .card-dark {
+    @apply rounded-2xl border border-line bg-void-card;
+  }
+
+  .card-light {
+    @apply rounded-2xl border border-line-light bg-white shadow-[0_20px_60px_-20px_rgba(0,0,0,0.12)];
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-line-light bg-white px-4 py-3.5 text-sm outline-none transition-all placeholder:text-smoke-light focus:border-blaze focus:ring-2 focus:ring-blaze/20;
+  }
+
+  .glow-orb {
+    @apply pointer-events-none absolute rounded-full blur-[100px];
+  }
+
+  .text-gradient {
+    @apply bg-gradient-to-r from-blaze via-gold to-mint bg-clip-text text-transparent;
+  }
+
+  .section-dark {
+    @apply bg-void text-white;
+  }
+
+  .section-light {
+    @apply bg-snow text-void;
+  }
+}
+
+@layer utilities {
+  .marquee-track {
+    animation: marquee 28s linear infinite;
+  }
+
+  .float-y {
+    animation: floatY 6s ease-in-out infinite;
+  }
+
+  .float-y-delay {
+    animation: floatY 6s ease-in-out 2s infinite;
+  }
+
+  .diagonal-cut {
+    clip-path: polygon(0 0, 100% 0, 100% 92%, 0 100%);
+  }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+@keyframes floatY {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-14px); }
+}
