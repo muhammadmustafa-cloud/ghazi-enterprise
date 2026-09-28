@@ -86,10 +86,10 @@ function AddReviewForm({ productId, onReviewAdded, dark }) {
             ))}
           </div>
           <div className="grid gap-4 sm:grid-cols-2">
-            <input className="input-field" placeholder="Your name *" value={form.author} onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} required />
-            <input className="input-field" placeholder="City" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} />
+            <input className="input-field text-black" placeholder="Your name *" value={form.author} onChange={(e) => setForm((p) => ({ ...p, author: e.target.value }))} required />
+            <input className="input-field text-black" placeholder="City" value={form.location} onChange={(e) => setForm((p) => ({ ...p, location: e.target.value }))} />
           </div>
-          <textarea className="input-field mt-4 resize-none" rows={4} placeholder="Your experience..." value={form.text} onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))} required />
+          <textarea className="input-field text-black mt-4 resize-none" rows={4} placeholder="Your experience..." value={form.text} onChange={(e) => setForm((p) => ({ ...p, text: e.target.value }))} required />
           <button type="submit" className="btn-blaze mt-5 !rounded-2xl">Submit</button>
         </>
       )}
