@@ -32,10 +32,11 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => {
-    setMenuOpen(false);
     document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
-  }, [menuOpen, pathname]);
+  }, [menuOpen]);
+
+  const closeMenu = () => setMenuOpen(false);
 
   return (
     <>
@@ -135,7 +136,7 @@ export default function Navbar() {
           <div className="flex h-full flex-col p-6">
             <div className="flex items-center justify-between">
               <span className="font-display text-2xl font-bold uppercase text-white">Menu</span>
-              <button type="button" onClick={() => setMenuOpen(false)} className="text-white">
+              <button type="button" onClick={closeMenu} className="text-white">
                 <X className="h-6 w-6" />
               </button>
             </div>
@@ -146,6 +147,7 @@ export default function Navbar() {
                   <Link
                     key={link.path}
                     href={link.path}
+                    onClick={closeMenu}
                     className={clsx(
                       'border-b border-line py-5 font-display text-3xl font-bold uppercase transition-colors',
                       isActive ? 'text-blaze' : 'text-white/70 hover:text-white'
@@ -156,7 +158,7 @@ export default function Navbar() {
                 );
               })}
             </nav>
-            <Link href="/shop/all" className="btn-blaze w-full justify-center">Shop Now</Link>
+            <Link href="/shop/all" onClick={closeMenu} className="btn-blaze w-full justify-center">Shop Now</Link>
           </div>
         </div>
       )}

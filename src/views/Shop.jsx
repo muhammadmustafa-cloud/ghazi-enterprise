@@ -1,27 +1,50 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useParams } from 'next/navigation'
+import { useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { SlidersHorizontal, X } from 'lucide-react';
 import { useCatalogStore } from '@/store/useCatalogStore';
 import { plyOptions } from '@/data/products';
 import ProductCard from '@/components/ui/ProductCard';
 
+function FilterPanel({ category, categories, condition, ply, onCategoryChange, onConditionChange, onPlyChange, dark = false }) {
+  return (
+    <div className="space-y-8">
+      <FilterGroup title="Category" dark={dark}>
+        <FilterRadio dark={dark} name="cat" value="all" checked={category === 'all'} onChange={onCategoryChange} label="All" />
+        {categories.map((cat) => (
+          <FilterRadio dark={dark} key={cat.id} name="cat" value={cat.id} checked={category === cat.id} onChange={onCategoryChange} label={cat.name} />
+        ))}
+      </FilterGroup>
+      <FilterGroup title="Condition" dark={dark}>
+        <FilterRadio dark={dark} name="cond" value="all" checked={condition === 'all'} onChange={onConditionChange} label="Any" />
+        <FilterRadio dark={dark} name="cond" value="New" checked={condition === 'New'} onChange={onConditionChange} label="New" />
+        <FilterRadio dark={dark} name="cond" value="Used" checked={condition === 'Used'} onChange={onConditionChange} label="Used" />
+      </FilterGroup>
+      {(category === 'all' || category.includes('box')) && (
+        <FilterGroup title="Ply" dark={dark}>
+          <FilterRadio dark={dark} name="ply" value="all" checked={ply === 'all'} onChange={onPlyChange} label="Any" />
+          {plyOptions.map((p) => (
+            <FilterRadio dark={dark} key={p} name="ply" value={p} checked={ply === p} onChange={onPlyChange} label={p} />
+          ))}
+        </FilterGroup>
+      )}
+    </div>
+  );
+}
+
 export default function Shop() {
+  const router = useRouter();
   const { categoryId } = useParams();
   const products = useCatalogStore((s) => s.products);
   const categories = useCatalogStore((s) => s.categories);
 
   const [mobileFilters, setMobileFilters] = useState(false);
-  const [category, setCategory] = useState(categoryId === 'all' ? 'all' : categoryId || 'all');
+  const category = !categoryId || categoryId === 'all' ? 'all' : categoryId;
   const [ply, setPly] = useState('all');
   const [condition, setCondition] = useState('all');
   const [sort, setSort] = useState('featured');
-
-  useEffect(() => {
-    setCategory(!categoryId || categoryId === 'all' ? 'all' : categoryId);
-  }, [categoryId]);
 
   let filtered = [...products];
   if (category !== 'all') filtered = filtered.filter((p) => p.category === category);
@@ -33,31 +56,18 @@ export default function Shop() {
   const activeCat = categories.find((c) => c.id === category);
   const title = category === 'all' ? 'Full Catalog' : activeCat?.name || 'Products';
 
-  const clearFilters = () => { setCategory('all'); setPly('all'); setCondition('all'); };
+  const clearFilters = () => {
+    setPly('all');
+    setCondition('all');
+    router.push('/shop/all');
+  };
 
-  const FilterPanel = ({ dark = false }) => (
-    <div className="space-y-8">
-      <FilterGroup title="Category" dark={dark}>
-        <FilterRadio dark={dark} name="cat" value="all" checked={category === 'all'} onChange={setCategory} label="All" />
-        {categories.map((cat) => (
-          <FilterRadio dark={dark} key={cat.id} name="cat" value={cat.id} checked={category === cat.id} onChange={setCategory} label={cat.name} />
-        ))}
-      </FilterGroup>
-      <FilterGroup title="Condition" dark={dark}>
-        <FilterRadio dark={dark} name="cond" value="all" checked={condition === 'all'} onChange={setCondition} label="Any" />
-        <FilterRadio dark={dark} name="cond" value="New" checked={condition === 'New'} onChange={setCondition} label="New" />
-        <FilterRadio dark={dark} name="cond" value="Used" checked={condition === 'Used'} onChange={setCondition} label="Used" />
-      </FilterGroup>
-      {(category === 'all' || category.includes('box')) && (
-        <FilterGroup title="Ply" dark={dark}>
-          <FilterRadio dark={dark} name="ply" value="all" checked={ply === 'all'} onChange={setPly} label="Any" />
-          {plyOptions.map((p) => (
-            <FilterRadio dark={dark} key={p} name="ply" value={p} checked={ply === p} onChange={setPly} label={p} />
-          ))}
-        </FilterGroup>
-      )}
-    </div>
-  );
+  const handleCategoryChange = (value) => {
+    const nextCategory = !value || value === 'all' ? 'all' : value;
+    if (nextCategory !== category) {
+      router.push(`/shop/${nextCategory}`);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-snow">
@@ -107,7 +117,16 @@ export default function Shop() {
           <aside className="hidden w-56 shrink-0 lg:block">
             <div className="card-dark p-6">
               <p className="mb-6 text-[10px] font-bold uppercase tracking-[0.25em] text-white/40">Filter</p>
-              <FilterPanel dark />
+              <FilterPanel
+                category={category}
+                categories={categories}
+                condition={condition}
+                ply={ply}
+                onCategoryChange={handleCategoryChange}
+                onConditionChange={setCondition}
+                onPlyChange={setPly}
+                dark
+              />
               {(category !== 'all' || ply !== 'all' || condition !== 'all') && (
                 <button type="button" onClick={clearFilters} className="mt-6 text-sm font-bold text-blaze hover:underline">
                   Clear filters
@@ -138,7 +157,18 @@ export default function Shop() {
               <span className="font-display text-2xl font-bold uppercase text-white">Filters</span>
               <button type="button" onClick={() => setMobileFilters(false)}><X className="h-6 w-6 text-white" /></button>
             </div>
-            <div className="mt-8 flex-1 overflow-y-auto"><FilterPanel dark /></div>
+            <div className="mt-8 flex-1 overflow-y-auto">
+              <FilterPanel
+                category={category}
+                categories={categories}
+                condition={condition}
+                ply={ply}
+                onCategoryChange={handleCategoryChange}
+                onConditionChange={setCondition}
+                onPlyChange={setPly}
+                dark
+              />
+            </div>
             <button type="button" onClick={() => setMobileFilters(false)} className="btn-blaze mt-4 w-full">
               Show {filtered.length} products
             </button>
