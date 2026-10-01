@@ -57,7 +57,7 @@ export default function Navbar() {
                 Ghazi
               </span>
               <span className={clsx('text-[9px] font-bold uppercase tracking-[0.3em]', onDark && !scrolled ? 'text-white/50' : 'text-smoke')}>
-                Enterprise
+                Packages
               </span>
             </div>
           </Link>
