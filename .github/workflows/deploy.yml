@@ -1,0 +1,94 @@
+name: Ghazi Enterprise CI/CD
+
+on:
+  push:
+    branches:
+      - main
+
+concurrency:
+  group: ghazi-production
+  cancel-in-progress: false
+
+jobs:
+  ci:
+    name: Test and Build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint
+        run: npm run lint
+
+      - name: Build Next.js
+        run: npm run build
+
+  deploy:
+    name: Deploy to Contabo
+    runs-on: ubuntu-latest
+    needs: ci
+
+    steps:
+      - name: Configure SSH
+        env:
+          SERVER_SSH_KEY: ${{ secrets.SERVER_SSH_KEY }}
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        run: |
+          mkdir -p ~/.ssh
+          chmod 700 ~/.ssh
+
+          printf '%s\n' "$SERVER_SSH_KEY" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
+
+          ssh-keyscan -p "$SERVER_PORT" "$SERVER_HOST" >> ~/.ssh/known_hosts
+          chmod 600 ~/.ssh/known_hosts
+
+      - name: Deploy application
+        env:
+          SERVER_HOST: ${{ secrets.SERVER_HOST }}
+          SERVER_USER: ${{ secrets.SERVER_USER }}
+          SERVER_PORT: ${{ secrets.SERVER_PORT }}
+        run: |
+          ssh -p "$SERVER_PORT" "$SERVER_USER@$SERVER_HOST" 'bash -s' << 'EOF'
+
+          set -e
+
+          cd /var/www/ghazi-enterprise
+
+          echo "Fetching latest code..."
+          git fetch origin main
+
+          echo "Updating main branch..."
+          git checkout main
+          git reset --hard origin/main
+
+          echo "Installing dependencies..."
+          npm ci
+
+          echo "Building application..."
+          npm run build
+
+          echo "Reloading PM2..."
+          pm2 startOrReload ecosystem.config.cjs --update-env
+
+          echo "Saving PM2 state..."
+          pm2 save
+
+          echo "Checking application..."
+          sleep 3
+          curl --fail --silent --show-error http://127.0.0.1:3000 > /dev/null
+
+          echo "Deployment successful"
+
+          EOF
